@@ -12,10 +12,10 @@ fun BottomNavigationBar(
     onNavigate: (String) -> Unit
 ) {
     val items = listOf(
-        BottomNavItem.Home,
-        BottomNavItem.Add,
-        BottomNavItem.Profile,
-        BottomNavItem.Settings
+        BottomNavItem.Aquariums,
+        BottomNavItem.Parameters,
+        BottomNavItem.Inhabitants,
+        BottomNavItem.History
     )
 
     NavigationBar(

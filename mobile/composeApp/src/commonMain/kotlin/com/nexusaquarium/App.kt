@@ -8,17 +8,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.nexusaquarium.ui.navigation.BottomNavigationBar
-import com.nexusaquarium.ui.screens.AddFishScreen
-import com.nexusaquarium.ui.screens.HomeScreen
-import com.nexusaquarium.ui.screens.ProfileScreen
-import com.nexusaquarium.ui.screens.SettingsScreen
+import com.nexusaquarium.ui.screens.AquariumsScreen
+import com.nexusaquarium.ui.screens.ParametersScreen
+import com.nexusaquarium.ui.screens.InhabitantsScreen
+import com.nexusaquarium.ui.screens.HistoryScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        var currentRoute by remember { mutableStateOf("home") }
+        var currentRoute by remember { mutableStateOf("aquariums") }
 
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -37,10 +37,10 @@ fun App() {
                     .padding(paddingValues)
             ) {
                 when (currentRoute) {
-                    "home" -> HomeScreen()
-                    "add" -> AddFishScreen()
-                    "profile" -> ProfileScreen()
-                    "settings" -> SettingsScreen()
+                    "aquariums" -> AquariumsScreen()
+                    "parameters" -> ParametersScreen()
+                    "inhabitants" -> InhabitantsScreen()
+                    "history" -> HistoryScreen()
                 }
             }
         }

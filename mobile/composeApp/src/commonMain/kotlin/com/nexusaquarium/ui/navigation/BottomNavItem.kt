@@ -2,20 +2,20 @@ package com.nexusaquarium.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Pets
-import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 
-// Navigation items for MVP Stage 1: Digital Aquarium Diary
+// Main navigation items for Nexus Aquarium
 sealed class BottomNavItem(
     val route: String,
     val title: String,
     val icon: ImageVector
 ) {
-    data object Aquariums : BottomNavItem("aquariums", "Acuarios", Icons.Default.Home)
-    data object Parameters : BottomNavItem("parameters", "Parámetros", Icons.Default.Science)
-    data object Inhabitants : BottomNavItem("inhabitants", "Habitantes", Icons.Default.Pets)
-    data object History : BottomNavItem("history", "Historial", Icons.Default.History)
+    data object Home : BottomNavItem("home", "Home", Icons.Default.Home)
+    data object Fish : BottomNavItem("fish", "Peces", Icons.Default.Pets)
+    data object MyAquariums : BottomNavItem("my_aquariums", "Mis Acuarios", Icons.Default.WaterDrop)
+    data object MyAccount : BottomNavItem("my_account", "Mi Cuenta", Icons.Default.Person)
 }
 

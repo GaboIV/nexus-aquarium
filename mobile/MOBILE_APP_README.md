@@ -41,6 +41,24 @@ mobile/composeApp/src/commonMain/kotlin/com/nexusaquarium/
 └── App.kt                              # Main app entry point
 ```
 
+## 🌍 Configuración de Entornos
+
+La aplicación soporta múltiples entornos para desarrollo y producción:
+
+### Entornos Disponibles
+- **LOCAL**: Desarrollo con emulador Android (`http://10.0.2.2:4301`)
+- **DEVELOP**: Dispositivo físico en red local (`http://192.168.1.100:4301`)
+- **QA**: Servidor de pruebas (`http://qa.nexusaquarium.com:4301`)
+- **PROD**: Servidor de producción (`http://pappstest.com:4301`)
+
+### Cambiar de Entorno
+```kotlin
+// En AppConfig.kt, cambiar esta línea:
+val CURRENT_ENVIRONMENT = Environment.LOCAL  // Cambiar por el entorno deseado
+```
+
+Ver [ENVIRONMENT_CONFIG.md](ENVIRONMENT_CONFIG.md) para más detalles.
+
 ## 🚀 Tecnologías Utilizadas
 
 - **Kotlin Multiplatform**: Código compartido entre plataformas

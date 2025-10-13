@@ -144,17 +144,38 @@ curl http://pappstest.com:4301/api/fish
 
 ## 🔄 Cambios de Configuración
 
-Para cambiar el servidor en el futuro, solo modifica `AppConfig.kt`:
+Para cambiar el servidor, modifica `AppConfig.kt`:
 
 ```kotlin
-// Para desarrollo local
-const val API_BASE_URL = "http://localhost:8080"
+// Cambiar el entorno actual
+val CURRENT_ENVIRONMENT = Environment.LOCAL    // Para desarrollo local
+val CURRENT_ENVIRONMENT = Environment.DEVELOP  // Para desarrollo en red
+val CURRENT_ENVIRONMENT = Environment.QA       // Para testing
+val CURRENT_ENVIRONMENT = Environment.PROD    // Para producción
+```
 
-// Para servidor de producción
-const val API_BASE_URL = "http://pappstest.com:4301"
+### Configuraciones por Entorno:
 
-// Para otro servidor
-const val API_BASE_URL = "http://nuevo-servidor.com:puerto"
+```kotlin
+// LOCAL - Desarrollo con emulador
+Environment.LOCAL to EnvironmentConfig(
+    baseUrl = "http://10.0.2.2:4301"
+)
+
+// DEVELOP - Dispositivo físico en red local
+Environment.DEVELOP to EnvironmentConfig(
+    baseUrl = "http://192.168.1.100:4301"  // Cambiar por tu IP
+)
+
+// QA - Servidor de pruebas
+Environment.QA to EnvironmentConfig(
+    baseUrl = "http://qa.nexusaquarium.com:4301"
+)
+
+// PROD - Servidor de producción
+Environment.PROD to EnvironmentConfig(
+    baseUrl = "http://pappstest.com:4301"
+)
 ```
 
 ## 📊 Estado Actual

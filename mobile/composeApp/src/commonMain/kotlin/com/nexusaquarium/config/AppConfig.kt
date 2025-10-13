@@ -1,21 +1,62 @@
 package com.nexusaquarium.config
 
+enum class Environment {
+    LOCAL,
+    DEVELOP,
+    QA,
+    PROD
+}
+
 object AppConfig {
-    // Production server configuration
-    const val API_BASE_URL = "http://pappstest.com:4301"
+    // Current environment - Change this to switch environments
+    val CURRENT_ENVIRONMENT = Environment.LOCAL
     
-    // Alternative configurations for different environments
-    // const val API_BASE_URL = "http://localhost:8080"  // Local development
-    // const val API_BASE_URL = "http://10.0.2.2:8080"   // Android emulator
-    // const val API_BASE_URL = "http://192.168.1.100:8080"  // Local network
+    // Environment-specific configurations
+    private val environmentConfigs = mapOf(
+        Environment.LOCAL to EnvironmentConfig(
+            baseUrl = "http://localhost:4301", // Android emulator localhost
+            timeout = 30000L,
+            maxRetries = 3
+        ),
+        Environment.DEVELOP to EnvironmentConfig(
+            baseUrl = "http://pappstest.com:4301", // Local network development
+            timeout = 30000L,
+            maxRetries = 3
+        ),
+        Environment.QA to EnvironmentConfig(
+            baseUrl = "http://api-qa.nexusaquarium.com:4301", // QA server
+            timeout = 30000L,
+            maxRetries = 3
+        ),
+        Environment.PROD to EnvironmentConfig(
+            baseUrl = "http://api.nexusaquarium.com:4301", // Production server
+            timeout = 30000L,
+            maxRetries = 3
+        )
+    )
+    
+    // Get current configuration
+    private val currentConfig = environmentConfigs[CURRENT_ENVIRONMENT]!!
+    
+    // Public configuration properties
+    val API_BASE_URL = currentConfig.baseUrl
+    val REQUEST_TIMEOUT = currentConfig.timeout
+    val MAX_RETRY_ATTEMPTS = currentConfig.maxRetries
     
     // API endpoints
-    const val FISH_ENDPOINT = "/api/fish"
+    const val FISH_ENDPOINT = "/api/v1/fish"
     const val HEALTH_ENDPOINT = "/health"
     
-    // Request timeout (in milliseconds)
-    const val REQUEST_TIMEOUT = 30000L
-    
-    // Retry configuration
-    const val MAX_RETRY_ATTEMPTS = 3
+    // Environment info
+    val ENVIRONMENT_NAME = CURRENT_ENVIRONMENT.name
+    val IS_LOCAL = CURRENT_ENVIRONMENT == Environment.LOCAL
+    val IS_DEVELOP = CURRENT_ENVIRONMENT == Environment.DEVELOP
+    val IS_QA = CURRENT_ENVIRONMENT == Environment.QA
+    val IS_PROD = CURRENT_ENVIRONMENT == Environment.PROD
 }
+
+data class EnvironmentConfig(
+    val baseUrl: String,
+    val timeout: Long,
+    val maxRetries: Int
+)

@@ -9,13 +9,15 @@ import io.ktor.http.*
 
 class FishApiService(private val client: HttpClient) {
     companion object {
-        private const val BASE_URL = "http://localhost:8080/api/v1"
+        // Using HttpClientProvider for dynamic URL configuration
+        private fun getBaseUrl(): String = HttpClientProvider.getBaseUrl()
+        private fun getFishEndpoint(): String = HttpClientProvider.getFishEndpoint()
     }
 
     // Get all fish
     suspend fun getAllFish(): Result<List<Fish>> {
         return try {
-            val response: HttpResponse = client.get("$BASE_URL/fish")
+            val response: HttpResponse = client.get(getFishEndpoint())
             if (response.status == HttpStatusCode.OK) {
                 Result.success(response.body())
             } else {
@@ -29,7 +31,7 @@ class FishApiService(private val client: HttpClient) {
     // Get fish by ID
     suspend fun getFishById(id: Int): Result<Fish> {
         return try {
-            val response: HttpResponse = client.get("$BASE_URL/fish/$id")
+            val response: HttpResponse = client.get("${getFishEndpoint()}/$id")
             if (response.status == HttpStatusCode.OK) {
                 Result.success(response.body())
             } else {
@@ -43,7 +45,7 @@ class FishApiService(private val client: HttpClient) {
     // Create new fish
     suspend fun createFish(fish: Fish): Result<String> {
         return try {
-            val response: HttpResponse = client.post("$BASE_URL/fish") {
+            val response: HttpResponse = client.post(getFishEndpoint()) {
                 contentType(ContentType.Application.Json)
                 setBody(fish)
             }
@@ -60,7 +62,7 @@ class FishApiService(private val client: HttpClient) {
     // Update fish
     suspend fun updateFish(id: Int, fish: Fish): Result<Unit> {
         return try {
-            val response: HttpResponse = client.put("$BASE_URL/fish/$id") {
+            val response: HttpResponse = client.put("${getFishEndpoint()}/$id") {
                 contentType(ContentType.Application.Json)
                 setBody(fish)
             }
@@ -77,7 +79,7 @@ class FishApiService(private val client: HttpClient) {
     // Delete fish
     suspend fun deleteFish(id: Int): Result<Unit> {
         return try {
-            val response: HttpResponse = client.delete("$BASE_URL/fish/$id")
+            val response: HttpResponse = client.delete("${getFishEndpoint()}/$id")
             if (response.status == HttpStatusCode.OK) {
                 Result.success(Unit)
             } else {

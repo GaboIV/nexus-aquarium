@@ -17,7 +17,7 @@ sealed class FishUiState {
 }
 
 class FishViewModel : ViewModel() {
-    private val apiService = FishApiService(HttpClientProvider.create())
+    private val apiService = FishApiService(HttpClientProvider.client)
     
     private val _uiState = MutableStateFlow<FishUiState>(FishUiState.Loading)
     val uiState: StateFlow<FishUiState> = _uiState.asStateFlow()

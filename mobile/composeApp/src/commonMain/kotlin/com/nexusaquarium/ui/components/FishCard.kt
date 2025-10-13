@@ -34,6 +34,7 @@ import com.nexusaquarium.data.model.Fish
 fun FishCard(
     fish: Fish,
     onDelete: (Int) -> Unit,
+    onCardClick: (Fish) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -41,7 +42,7 @@ fun FishCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { expanded = !expanded },
+            .clickable { onCardClick(fish) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp,
@@ -62,7 +63,7 @@ fun FishCard(
                 if (fish.imageUrl != null) {
                     AsyncImage(
                         model = fish.imageUrl,
-                        contentDescription = fish.name,
+                        contentDescription = fish.commonName,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
@@ -105,19 +106,28 @@ fun FishCard(
                 }
 
                 // Fish name overlay
-                Box(
+                Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = fish.name,
+                        text = fish.commonName,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = if (fish.imageUrl != null) 
                             MaterialTheme.colorScheme.onSurface 
                         else 
                             MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        text = fish.scientificName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontStyle = FontStyle.Italic,
+                        color = if (fish.imageUrl != null) 
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                        else 
+                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                     )
                 }
 
@@ -139,8 +149,93 @@ fun FishCard(
                     )
                 }
             }
+            
+            // Quick Info Section (Always visible)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Water Parameters Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    QuickInfoChip(
+                        icon = "🌡️",
+                        label = "Temp",
+                        value = fish.getTemperatureRange()
+                    )
+                    QuickInfoChip(
+                        icon = "💧",
+                        label = "pH",
+                        value = fish.getPhRange()
+                    )
+                    QuickInfoChip(
+                        icon = "📏",
+                        label = "Tamaño",
+                        value = "${fish.maxSizeCm} cm"
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                // Behavior Icons Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Temperament
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = fish.getTemperamentEmoji(),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = when (fish.temperament) {
+                                "peaceful" -> "Pacífico"
+                                "semi_aggressive" -> "Semi-agresivo"
+                                "aggressive" -> "Agresivo"
+                                else -> fish.temperament
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    
+                    // Social Behavior
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = fish.getSocialBehaviorEmoji(),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = when (fish.socialBehavior) {
+                                "schooling" -> "Cardumen"
+                                "shoaling" -> "Grupo"
+                                "pairs" -> "Pareja"
+                                "solitary" -> "Solitario"
+                                else -> fish.socialBehavior
+                            } + (fish.minGroupSize?.let { " (min $it)" } ?: ""),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    
+                    // Difficulty
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = fish.getDifficultyStars(),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
+            }
 
-            // Details section
+            // Details section (Expanded)
             AnimatedVisibility(
                 visible = expanded,
                 enter = fadeIn() + expandVertically(
@@ -151,57 +246,160 @@ fun FishCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 16.dp)
                 ) {
-                    Divider(
-                        modifier = Modifier.padding(bottom = 12.dp),
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
                         color = MaterialTheme.colorScheme.outlineVariant
                     )
                     
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Scientific Name",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = fish.scientificName,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontStyle = FontStyle.Italic,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            Text(
-                                text = "ID: ${fish.id}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        // Delete button
-                        FilledTonalIconButton(
-                            onClick = { onDelete(fish.id) },
-                            colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    // Overview Section
+                    DetailSection(title = "Visión General") {
+                        DetailRow(label = "Origen", value = fish.origin)
+                        DetailRow(label = "Esperanza de vida", value = "${fish.lifeExpectancyYears} años")
+                        DetailRow(label = "Acuario mínimo", value = "${fish.minTankSizeLiters}L")
+                        DetailRow(label = "Nivel de nado", value = when(fish.tankLevel) {
+                            "bottom" -> "Fondo"
+                            "mid" -> "Medio"
+                            "top" -> "Superficie"
+                            "all" -> "Todos los niveles"
+                            else -> fish.tankLevel
+                        })
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    // Diet Section
+                    DetailSection(title = "Alimentación") {
+                        DetailRow(label = "Tipo de dieta", value = when(fish.dietType) {
+                            "omnivore" -> "Omnívoro"
+                            "carnivore" -> "Carnívoro"
+                            "herbivore" -> "Herbívoro"
+                            else -> fish.dietType
+                        })
+                    }
+                    
+                    // Warnings
+                    if (fish.isPredator || fish.isFinNipper) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
                             )
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete fish"
-                            )
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                if (fish.isPredator) {
+                                    Text(
+                                        text = "⚠️ Depredador: Puede comer peces pequeños",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                                if (fish.isFinNipper) {
+                                    Text(
+                                        text = "⚠️ Muerde aletas: No compatible con peces de aletas largas",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
                         }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    // Delete button
+                    FilledTonalButton(
+                        onClick = { onDelete(fish.id) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Eliminar pez")
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun QuickInfoChip(
+    icon: String,
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Text(
+            text = icon,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun DetailSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        content()
+    }
+}
+
+@Composable
+private fun DetailRow(
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 

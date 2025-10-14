@@ -17,10 +17,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.nexusaquarium.data.model.Aquarium
+import com.nexusaquarium.ui.components.AquariumCard
+import com.nexusaquarium.ui.viewmodel.AquariumViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyAquariumsScreen() {
+fun MyAquariumsScreen(
+    viewModel: AquariumViewModel,
+    onAquariumClick: (Aquarium) -> Unit,
+    onAddAquarium: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -46,7 +53,7 @@ fun MyAquariumsScreen() {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Navigate to add aquarium screen */ },
+                onClick = onAddAquarium,
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
@@ -56,6 +63,9 @@ fun MyAquariumsScreen() {
             }
         }
     ) { paddingValues ->
+        val aquariums = viewModel.aquariums
+        val isLoading = viewModel.isLoading
+        
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -69,13 +79,31 @@ fun MyAquariumsScreen() {
                     )
                 )
         ) {
-            EmptyAquariumsView()
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                aquariums.isEmpty() -> {
+                    EmptyAquariumsView(onAddAquarium = onAddAquarium)
+                }
+                else -> {
+                    AquariumsListView(
+                        aquariums = aquariums,
+                        onAquariumClick = onAquariumClick
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun EmptyAquariumsView() {
+private fun EmptyAquariumsView(onAddAquarium: () -> Unit) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -158,7 +186,7 @@ private fun EmptyAquariumsView() {
             Spacer(modifier = Modifier.height(8.dp))
             
             Button(
-                onClick = { /* TODO: Navigate to add aquarium */ },
+                onClick = onAddAquarium,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 )
@@ -210,93 +238,23 @@ private fun AquariumFeatureItem(
 
 // This will be used when there are aquariums to display
 @Composable
-private fun AquariumsListView() {
+private fun AquariumsListView(
+    aquariums: List<Aquarium>,
+    onAquariumClick: (Aquarium) -> Unit
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Example aquarium cards (for future implementation)
-        items(3) { index ->
+        items(aquariums.size) { index ->
+            val aquarium = aquariums[index]
             AquariumCard(
-                name = "Acuario ${index + 1}",
-                volume = "${50 + index * 25}L",
-                fishCount = index * 5,
-                onClick = { /* TODO: Navigate to aquarium detail */ }
+                aquarium = aquarium,
+                onClick = { onAquariumClick(aquarium) }
             )
         }
     }
 }
 
-@Composable
-private fun AquariumCard(
-    name: String,
-    volume: String,
-    fishCount: Int,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
-            ) {
-                // Icon
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.WaterDrop,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-                
-                // Info
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "$volume • $fishCount peces",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = "Ver detalles",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
 

@@ -9,7 +9,7 @@ enum class Environment {
 
 object AppConfig {
     // Current environment - Change this to switch environments
-    val CURRENT_ENVIRONMENT = Environment.DEVELOP
+    val CURRENT_ENVIRONMENT = Environment.LOCAL
     
     // Environment-specific configurations
     private val environmentConfigs = mapOf(

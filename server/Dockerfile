@@ -1,5 +1,5 @@
 # Dockerfile para Nexus Aquarium API
-FROM eclipse-temurin:17-jdk-jammy AS builder
+FROM eclipse-temurin:21-jdk-jammy AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY src/ src/
 RUN ./gradlew build -x test --no-daemon
 
 # Final stage
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 

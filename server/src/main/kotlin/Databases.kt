@@ -11,6 +11,7 @@ import java.sql.DriverManager
 fun Application.configureDatabases() {
     val dbConnection: Connection = connectToPostgres(embedded = false)
     val fishService = FishService(dbConnection)
+    val aquariumService = AquariumService(dbConnection)
     
     routing {
         // Fish endpoints
@@ -51,6 +52,46 @@ fun Application.configureDatabases() {
             delete("/fish/{id}") {
                 val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
                 fishService.delete(id)
+                call.respond(HttpStatusCode.OK)
+            }
+            
+            // Aquarium endpoints
+            // List all aquariums
+            get("/aquariums") {
+                val aquariumList = aquariumService.listAll()
+                call.respond(HttpStatusCode.OK, aquariumList)
+            }
+            
+            // Get aquarium by ID
+            get("/aquariums/{id}") {
+                val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
+                try {
+                    val aquarium = aquariumService.read(id)
+                    call.respond(HttpStatusCode.OK, aquarium)
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.NotFound)
+                }
+            }
+            
+            // Create new aquarium
+            post("/aquariums") {
+                val aquarium = call.receive<Aquarium>()
+                val id = aquariumService.create(aquarium)
+                call.respond(HttpStatusCode.Created, id)
+            }
+            
+            // Update aquarium
+            put("/aquariums/{id}") {
+                val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
+                val aquarium = call.receive<Aquarium>()
+                aquariumService.update(id, aquarium)
+                call.respond(HttpStatusCode.OK)
+            }
+            
+            // Delete aquarium
+            delete("/aquariums/{id}") {
+                val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
+                aquariumService.delete(id)
                 call.respond(HttpStatusCode.OK)
             }
         }

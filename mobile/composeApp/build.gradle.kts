@@ -73,15 +73,20 @@ kotlin {
 }
 
 android {
-    namespace = "com.nexusaquarium"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    namespace = project.findProperty("app.package.name") as String? ?: "com.nexusaquarium"
+    compileSdk = (project.findProperty("app.compile.sdk") as String? ?: libs.versions.android.compileSdk.get()).toInt()
 
     defaultConfig {
-        applicationId = "com.nexusaquarium"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        applicationId = project.findProperty("app.package.name") as String? ?: "com.nexusaquarium"
+        minSdk = (project.findProperty("app.min.sdk") as String? ?: libs.versions.android.minSdk.get()).toInt()
+        targetSdk = (project.findProperty("app.target.sdk") as String? ?: libs.versions.android.targetSdk.get()).toInt()
+        versionCode = (project.findProperty("app.version.code") as String? ?: "1").toInt()
+        versionName = project.findProperty("app.version.name") as String? ?: "0.0.1"
+        
+        // Set app name from properties
+        resValue("string", "app_name", project.findProperty("app.name") as String? ?: "Nexus Aquarium")
+        resValue("string", "app_display_name", project.findProperty("app.display.name") as String? ?: "Nexus Aquarium")
+        resValue("string", "app_description", project.findProperty("app.description") as String? ?: "Nexus Aquarium - Fish Management System")
     }
     packaging {
         resources {
@@ -109,8 +114,10 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.nexusaquarium"
-            packageVersion = "1.0.0"
+            packageName = project.findProperty("app.package.name") as String? ?: "com.nexusaquarium"
+            packageVersion = project.findProperty("app.version.name") as String? ?: "0.0.1"
+            description = project.findProperty("app.description") as String? ?: "Nexus Aquarium - Fish Management System"
+            vendor = project.findProperty("app.company.name") as String? ?: "Nexus Aquarium"
         }
     }
 }

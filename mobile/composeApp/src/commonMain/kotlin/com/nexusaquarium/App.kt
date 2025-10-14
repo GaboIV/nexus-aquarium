@@ -3,21 +3,26 @@ package com.nexusaquarium
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexusaquarium.ui.navigation.BottomNavigationBar
 import com.nexusaquarium.ui.screens.NewHomeScreen
 import com.nexusaquarium.ui.screens.FishScreen
 import com.nexusaquarium.ui.screens.MyAquariumsScreen
 import com.nexusaquarium.ui.screens.MyAccountScreen
+import com.nexusaquarium.ui.theme.AppTheme
+import com.nexusaquarium.ui.theme.ThemeViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    val themeViewModel: ThemeViewModel = viewModel()
+    val themeMode by themeViewModel.themeMode.collectAsState()
+    
+    AppTheme(themeMode = themeMode) {
         var currentRoute by remember { mutableStateOf("home") }
 
         Scaffold(
@@ -40,7 +45,7 @@ fun App() {
                     "home" -> NewHomeScreen()
                     "fish" -> FishScreen()
                     "my_aquariums" -> MyAquariumsScreen()
-                    "my_account" -> MyAccountScreen()
+                    "my_account" -> MyAccountScreen(themeViewModel = themeViewModel)
                 }
             }
         }

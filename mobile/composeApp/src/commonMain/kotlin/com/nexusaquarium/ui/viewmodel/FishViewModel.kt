@@ -29,15 +29,31 @@ class FishViewModel : ViewModel() {
     fun loadFish() {
         viewModelScope.launch {
             _uiState.value = FishUiState.Loading
-            apiService.getAllFish()
-                .onSuccess { fishList ->
-                    _uiState.value = FishUiState.Success(fishList)
-                }
-                .onFailure { exception ->
-                    _uiState.value = FishUiState.Error(
-                        exception.message ?: "Unknown error occurred"
-                    )
-                }
+            try {
+                println("🔍 Intentando conectar a: ${HttpClientProvider.getFishEndpoint()}")
+                println("🔍 URL base: ${HttpClientProvider.getBaseUrl()}")
+                println("🔍 Endpoint: ${HttpClientProvider.getFishEndpoint()}")
+                
+                val result = apiService.getAllFish()
+                result
+                    .onSuccess { fishList ->
+                        println("✅ Datos recibidos: ${fishList.size} peces")
+                        println("✅ Primer pez: ${fishList.firstOrNull()?.commonName}")
+                        _uiState.value = FishUiState.Success(fishList)
+                    }
+                    .onFailure { exception ->
+                        println("❌ Error de conexión: ${exception.message}")
+                        println("❌ Tipo de error: ${exception.javaClass.simpleName}")
+                        println("❌ Stack trace: ${exception.stackTraceToString()}")
+                        _uiState.value = FishUiState.Error(
+                            exception.message ?: "Unknown error occurred"
+                        )
+                    }
+            } catch (e: Exception) {
+                println("❌ Excepción no manejada: ${e.message}")
+                println("❌ Stack trace: ${e.stackTraceToString()}")
+                _uiState.value = FishUiState.Error(e.message ?: "Unknown error occurred")
+            }
         }
     }
 

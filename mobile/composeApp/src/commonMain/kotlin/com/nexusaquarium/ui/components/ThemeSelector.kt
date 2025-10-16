@@ -1,5 +1,6 @@
 package com.nexusaquarium.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -120,7 +121,11 @@ private fun ThemeSelectionDialog(
                     onThemeSelected = onThemeSelected
                 )
                 
-                Divider()
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
                 
                 // Theme options
                 Column(

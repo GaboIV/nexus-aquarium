@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
@@ -98,14 +100,24 @@ fun MyAccountScreen(
                             subtitle = "Nombre, foto y biografía",
                             onClick = { /* TODO */ }
                         )
-                        Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                        )
                         SettingsItem(
                             icon = Icons.Default.Email,
                             title = "Email",
                             subtitle = "usuario@ejemplo.com",
                             onClick = { /* TODO */ }
                         )
-                        Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                        )
                         SettingsItem(
                             icon = Icons.Default.Lock,
                             title = "Cambiar Contraseña",
@@ -141,14 +153,24 @@ fun MyAccountScreen(
                             subtitle = "Gestiona tus alertas",
                             onClick = { /* TODO */ }
                         )
-                        Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                        )
                         SettingsItem(
                             icon = Icons.Default.Language,
                             title = "Idioma",
                             subtitle = "Español",
                             onClick = { /* TODO */ }
                         )
-                        Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                        )
                         ThemeSelector(
                             currentTheme = themeMode,
                             onThemeSelected = { theme ->
@@ -184,14 +206,24 @@ fun MyAccountScreen(
                             subtitle = "Versión 1.0.0",
                             onClick = { /* TODO */ }
                         )
-                        Divider(modifier = Modifier.padding(horizontal = 16.dp))
-                        SettingsItem(
-                            icon = Icons.Default.Help,
-                            title = "Ayuda y Soporte",
-                            subtitle = "¿Necesitas ayuda?",
-                            onClick = { /* TODO */ }
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                         )
-                        Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                            SettingsItem(
+                                icon = Icons.Default.Help,
+                                title = "Ayuda y Soporte",
+                                subtitle = "¿Necesitas ayuda?",
+                                onClick = { /* TODO */ }
+                            )
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(horizontal = 16.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                        )
                         SettingsItem(
                             icon = Icons.Default.Policy,
                             title = "Privacidad",
@@ -215,13 +247,13 @@ fun MyAccountScreen(
                         containerColor = MaterialTheme.colorScheme.errorContainer
                     )
                 ) {
-                    SettingsItem(
-                        icon = Icons.Default.ExitToApp,
-                        title = "Cerrar Sesión",
-                        subtitle = null,
-                        onClick = { /* TODO */ },
-                        tintColor = MaterialTheme.colorScheme.error
-                    )
+                            SettingsItem(
+                                icon = Icons.Default.ExitToApp,
+                            title = "Cerrar Sesión",
+                            subtitle = null,
+                            onClick = { /* TODO */ },
+                            tintColor = MaterialTheme.colorScheme.error
+                        )
                 }
             }
             

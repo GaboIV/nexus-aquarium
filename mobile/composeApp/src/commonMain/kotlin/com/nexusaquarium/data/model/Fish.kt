@@ -78,4 +78,6 @@ data class Fish(
         "advanced" -> "⭐⭐⭐"
         else -> "❓"
     }
+
+    fun isAggressive(): Boolean = temperament == "aggressive" || isPredator || isFinNipper
 }

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,6 +39,7 @@ fun FishCard(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showDetailsDialog by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier
@@ -131,22 +133,42 @@ fun FishCard(
                     )
                 }
 
-                // Expand icon
-                IconButton(
-                    onClick = { expanded = !expanded },
+                // Row of top-right action icons: Info and Expand
+                Row(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                        .background(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                            RoundedCornerShape(12.dp)
-                        )
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = if (expanded) "Collapse" else "Expand",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    IconButton(
+                        onClick = { showDetailsDialog = true },
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                                RoundedCornerShape(12.dp)
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Info",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { expanded = !expanded },
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                                RoundedCornerShape(12.dp)
+                            )
+                    ) {
+                        Icon(
+                            imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            contentDescription = if (expanded) "Collapse" else "Expand",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
             
@@ -161,6 +183,25 @@ fun FishCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    if (showDetailsDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDetailsDialog = false },
+                            confirmButton = {
+                                TextButton(onClick = { showDetailsDialog = false }) {
+                                    Text("Cerrar")
+                                }
+                            },
+                            title = {
+                                Text(text = fish.commonName)
+                            },
+                            text = {
+                                Column {
+                                    Text(text = "Nombre científico: ${fish.scientificName}")
+                                    Text(text = "Agresivo: ${if (fish.isAggressive()) "Sí" else "No"}")
+                                }
+                            }
+                        )
+                    }
                     QuickInfoChip(
                         icon = "🌡️",
                         label = "Temp",

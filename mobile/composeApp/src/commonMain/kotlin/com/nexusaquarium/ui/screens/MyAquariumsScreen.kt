@@ -23,80 +23,69 @@ import com.nexusaquarium.ui.viewmodel.AquariumViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun MyAquariumsTopAppBar() {
+    TopAppBar(
+        title = {
+            Column {
+                Text(
+                    text = "Mis Acuarios",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Gestiona tus acuarios",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface
+        )
+    )
+}
+
+@Composable
 fun MyAquariumsScreen(
+    paddingValues: PaddingValues,
     viewModel: AquariumViewModel,
     onAquariumClick: (Aquarium) -> Unit,
     onAddAquarium: () -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = "Mis Acuarios",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Gestiona tus acuarios",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
+    val aquariums = viewModel.aquariums
+    val isLoading = viewModel.isLoading
+    
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceContainerLowest
+                    )
                 )
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddAquarium,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar acuario"
-                )
+    ) {
+        when {
+            isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
-        }
-    ) { paddingValues ->
-        val aquariums = viewModel.aquariums
-        val isLoading = viewModel.isLoading
-        
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.surfaceContainerLowest
-                        )
-                    )
+            aquariums.isEmpty() -> {
+                EmptyAquariumsView(onAddAquarium = onAddAquarium)
+            }
+            else -> {
+                AquariumsListView(
+                    aquariums = aquariums,
+                    onAquariumClick = onAquariumClick
                 )
-        ) {
-            when {
-                isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                aquariums.isEmpty() -> {
-                    EmptyAquariumsView(onAddAquarium = onAddAquarium)
-                }
-                else -> {
-                    AquariumsListView(
-                        aquariums = aquariums,
-                        onAquariumClick = onAquariumClick
-                    )
-                }
             }
         }
     }
@@ -111,24 +100,8 @@ private fun EmptyAquariumsView(onAddAquarium: () -> Unit) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(32.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
-            // Icon
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "🐠",
-                    style = MaterialTheme.typography.displayLarge
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
             Text(
                 text = "No tienes acuarios",
                 style = MaterialTheme.typography.headlineMedium,
@@ -189,7 +162,8 @@ private fun EmptyAquariumsView(onAddAquarium: () -> Unit) {
                 onClick = onAddAquarium,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,

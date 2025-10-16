@@ -1,6 +1,6 @@
 package com.nexusaquarium.ui.navigation
 
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,8 +19,9 @@ fun BottomNavigationBar(
     )
 
     NavigationBar(
-        modifier = Modifier.height(80.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth(),
+        // use solid surface color based on theme so it adapts to light/dark
+        containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 8.dp
     ) {
         items.forEach { item ->

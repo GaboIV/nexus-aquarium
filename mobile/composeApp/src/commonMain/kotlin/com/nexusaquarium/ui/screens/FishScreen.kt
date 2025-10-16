@@ -4,6 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
@@ -24,84 +27,87 @@ import com.nexusaquarium.ui.viewmodel.FishViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun FishTopAppBar(
+    onSearchClick: () -> Unit = {},
+    onRefreshClick: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Column {
+                Text(
+                    text = "Catálogo de Peces",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Explora y agrega peces a tus acuarios",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = onSearchClick) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Buscar",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            IconButton(onClick = onRefreshClick) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Actualizar",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface
+        )
+    )
+}
+
+@Composable
 fun FishScreen(
+    paddingValues: PaddingValues,
     viewModel: FishViewModel = viewModel { FishViewModel() }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = "Catálogo de Peces",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Explora y agrega peces a tus acuarios",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* TODO: Search functionality */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Buscar",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    IconButton(onClick = { viewModel.loadFish() }) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Actualizar",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.surfaceContainerLowest
+                    )
                 )
             )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.surfaceContainerLowest
-                        )
+    ) {
+        when (val state = uiState) {
+            is FishUiState.Loading -> {
+                LoadingView()
+            }
+            is FishUiState.Success -> {
+                if (state.fish.isEmpty()) {
+                    EmptyStateView()
+                } else {
+                    FishListView(
+                        fish = state.fish,
+                        onDelete = { fishId -> viewModel.deleteFish(fishId) }
                     )
+                }
+            }
+            is FishUiState.Error -> {
+                ErrorView(
+                    message = state.message,
+                    onRetry = { viewModel.loadFish() }
                 )
-        ) {
-            when (val state = uiState) {
-                is FishUiState.Loading -> {
-                    LoadingView()
-                }
-                is FishUiState.Success -> {
-                    if (state.fish.isEmpty()) {
-                        EmptyStateView()
-                    } else {
-                        FishListView(
-                            fish = state.fish,
-                            onDelete = { fishId -> viewModel.deleteFish(fishId) }
-                        )
-                    }
-                }
-                is FishUiState.Error -> {
-                    ErrorView(
-                        message = state.message,
-                        onRetry = { viewModel.loadFish() }
-                    )
-                }
             }
         }
     }
@@ -213,75 +219,73 @@ private fun FishListView(
     fish: List<com.nexusaquarium.data.model.Fish>,
     onDelete: (Int) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Header card with stats
-        item {
-            StatsCard(fishCount = fish.size)
-        }
+    // Header card with stats shown above the grid so it doesn't require GridItemSpan
+    Column(modifier = Modifier.fillMaxSize()) {
+//        StatsCard(fishCount = fish.size)
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // Fish list
-        items(fish, key = { it.id }) { fishItem ->
-            FishCard(
-                fish = fishItem,
-                onDelete = onDelete
-            )
-        }
-
-        // Bottom spacer
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
-@Composable
-private fun StatsCard(fishCount: Int) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 0.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Column {
-                Text(
-                    text = "Total de Especies",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                Text(
-                    text = "$fishCount peces",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-            
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "🐟",
-                    style = MaterialTheme.typography.headlineMedium
+            items(fish, key = { it.id }) { fishItem ->
+                FishCard(
+                    fish = fishItem,
+                    onDelete = onDelete,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
     }
 }
+
+//@Composable
+//private fun StatsCard(fishCount: Int) {
+//    Card(
+//        modifier = Modifier.fillMaxWidth(),
+//        shape = RoundedCornerShape(20.dp),
+//        colors = CardDefaults.cardColors(
+//            containerColor = MaterialTheme.colorScheme.primaryContainer
+//        ),
+//        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+//    ) {
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(24.dp),
+//            horizontalArrangement = Arrangement.SpaceBetween,
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Column {
+//                Text(
+//                    text = "Total de Especies",
+//                    style = MaterialTheme.typography.titleMedium,
+//                    color = MaterialTheme.colorScheme.onPrimaryContainer
+//                )
+//                Text(
+//                    text = "$fishCount peces",
+//                    style = MaterialTheme.typography.headlineLarge,
+//                    fontWeight = FontWeight.Bold,
+//                    color = MaterialTheme.colorScheme.primary
+//                )
+//            }
+//
+//            Box(
+//                modifier = Modifier
+//                    .size(60.dp)
+//                    .clip(RoundedCornerShape(16.dp))
+//                    .background(MaterialTheme.colorScheme.primary),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Text(
+//                    text = "🐟",
+//                    style = MaterialTheme.typography.headlineMedium
+//                )
+//            }
+//        }
+//    }
+//}
 

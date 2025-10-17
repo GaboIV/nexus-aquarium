@@ -23,7 +23,13 @@ import com.nexusaquarium.ui.viewmodel.AquariumViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyAquariumsTopAppBar() {
+fun MyAquariumsTopAppBar(
+    authViewModel: com.nexusaquarium.ui.viewmodel.AuthViewModel? = null,
+    onLoginClick: () -> Unit = {}
+) {
+    val authState by authViewModel?.authState ?: remember { mutableStateOf(com.nexusaquarium.data.model.AuthState.LoggedOut) }
+    val currentUser = authViewModel?.getCurrentUser()
+    
     TopAppBar(
         title = {
             Column {
@@ -39,6 +45,29 @@ fun MyAquariumsTopAppBar() {
                 )
             }
         },
+        actions = {
+            when (authState) {
+                is com.nexusaquarium.data.model.AuthState.LoggedIn -> {
+                    // Show user info
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = currentUser?.displayName ?: currentUser?.email?.substringBefore("@") ?: "Usuario",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                else -> {
+                    // Show login button
+                    TextButton(onClick = onLoginClick) {
+                        Text("Iniciar Sesión")
+                    }
+                }
+            }
+        },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
             titleContentColor = MaterialTheme.colorScheme.onSurface
@@ -51,10 +80,13 @@ fun MyAquariumsScreen(
     paddingValues: PaddingValues,
     viewModel: AquariumViewModel,
     onAquariumClick: (Aquarium) -> Unit,
-    onAddAquarium: () -> Unit
+    onAddAquarium: () -> Unit,
+    authViewModel: com.nexusaquarium.ui.viewmodel.AuthViewModel? = null,
+    onLoginClick: () -> Unit = {}
 ) {
     val aquariums = viewModel.aquariums
     val isLoading = viewModel.isLoading
+    val authState by authViewModel?.authState ?: remember { mutableStateOf(com.nexusaquarium.data.model.AuthState.LoggedOut) }
     
     Box(
         modifier = Modifier
@@ -70,6 +102,10 @@ fun MyAquariumsScreen(
             )
     ) {
         when {
+            authState !is com.nexusaquarium.data.model.AuthState.LoggedIn -> {
+                // Show authentication required message
+                AuthRequiredView(onLoginClick = onLoginClick)
+            }
             isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -227,6 +263,99 @@ private fun AquariumsListView(
                 aquarium = aquarium,
                 onClick = { onAquariumClick(aquarium) }
             )
+        }
+    }
+}
+
+@Composable
+private fun AuthRequiredView(onLoginClick: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            shape = RoundedCornerShape(24.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
+                                MaterialTheme.colorScheme.surface
+                            )
+                        )
+                    )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .background(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                RoundedCornerShape(20.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "🔐",
+                            style = MaterialTheme.typography.displayLarge
+                        )
+                    }
+                    
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = "Inicia sesión para acceder a tus acuarios",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        
+                        Text(
+                            text = "Necesitas una cuenta para guardar y sincronizar tus acuarios entre dispositivos",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Button(
+                        onClick = onLoginClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(
+                            text = "Iniciar Sesión / Registrarse",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+            }
         }
     }
 }

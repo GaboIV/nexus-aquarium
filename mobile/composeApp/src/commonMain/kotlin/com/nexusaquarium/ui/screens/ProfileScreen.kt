@@ -12,7 +12,11 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    authViewModel: com.nexusaquarium.ui.viewmodel.AuthViewModel? = null
+) {
+    val currentUser = authViewModel?.getCurrentUser()
+    val displayName = currentUser?.displayName ?: currentUser?.email?.substringBefore("@") ?: "Usuario"
     Scaffold(
         topBar = {
             TopAppBar(
@@ -52,15 +56,27 @@ fun ProfileScreen() {
                     style = MaterialTheme.typography.displayLarge
                 )
                 Text(
-                    text = "Profile Screen",
+                    text = "Perfil de $displayName",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "User profile details coming soon",
+                    text = currentUser?.email ?: "No hay información de usuario",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                
+                if (authViewModel != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { authViewModel.logout() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("Cerrar Sesión")
+                    }
+                }
             }
         }
     }

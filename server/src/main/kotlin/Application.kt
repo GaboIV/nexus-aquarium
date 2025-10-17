@@ -8,6 +8,7 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     configureSerialization()
+    configureAuthentication()
     configureDatabases()
     configureRouting()
     configureSwagger()

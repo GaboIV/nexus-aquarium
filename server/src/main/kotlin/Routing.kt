@@ -70,6 +70,30 @@ fun Application.configureRouting() {
                             <span class="method">DELETE</span> /api/v1/aquariums/{id} - Eliminar acuario
                         </div>
                         
+                        <h2>🔐 Autenticación:</h2>
+                        
+                        <div class="endpoint">
+                            <span class="method">POST</span> /api/v1/auth/register - Registrar nuevo usuario
+                        </div>
+                        <div class="endpoint">
+                            <span class="method">POST</span> /api/v1/auth/login - Iniciar sesión
+                        </div>
+                        <div class="endpoint">
+                            <span class="method">GET</span> /api/v1/users/me - Obtener perfil de usuario (requiere autenticación)
+                        </div>
+                        <div class="endpoint">
+                            <span class="method">PUT</span> /api/v1/users/me - Actualizar perfil de usuario (requiere autenticación)
+                        </div>
+                        <div class="endpoint">
+                            <span class="method">POST</span> /api/v1/users/me/devices - Registrar dispositivo para notificaciones (requiere autenticación)
+                        </div>
+                        <div class="endpoint">
+                            <span class="method">GET</span> /api/v1/users/me/preferences - Obtener preferencias de usuario (requiere autenticación)
+                        </div>
+                        <div class="endpoint">
+                            <span class="method">PUT</span> /api/v1/users/me/preferences - Actualizar preferencias de usuario (requiere autenticación)
+                        </div>
+                        
                         <a href="/swagger" class="swagger-link">📚 Ver Documentación Completa (Swagger UI)</a>
                     </div>
                 </body>

@@ -12,6 +12,8 @@ fun Application.configureDatabases() {
     val dbConnection: Connection = connectToPostgres(embedded = false)
     val fishService = FishService(dbConnection)
     val aquariumService = AquariumService(dbConnection)
+    val userService = UserService(dbConnection)
+    val authService = AuthService()
     
     routing {
         // Fish endpoints
@@ -95,6 +97,9 @@ fun Application.configureDatabases() {
                 call.respond(HttpStatusCode.OK)
             }
         }
+        
+        // Add authentication routes
+        configureAuthRoutes(userService, authService)
     }
 }
 /**

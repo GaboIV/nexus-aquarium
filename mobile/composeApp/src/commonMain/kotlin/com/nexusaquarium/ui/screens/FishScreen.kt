@@ -72,7 +72,8 @@ fun FishTopAppBar(
 @Composable
 fun FishScreen(
     paddingValues: PaddingValues,
-    viewModel: FishViewModel = viewModel { FishViewModel() }
+    viewModel: FishViewModel = viewModel { FishViewModel() },
+    onFishClick: (com.nexusaquarium.data.model.Fish) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -99,7 +100,8 @@ fun FishScreen(
                 } else {
                     FishListView(
                         fish = state.fish,
-                        onDelete = { fishId -> viewModel.deleteFish(fishId) }
+                        onDelete = { fishId -> viewModel.deleteFish(fishId) },
+                        onFishClick = onFishClick
                     )
                 }
             }
@@ -217,7 +219,8 @@ private fun ErrorView(
 @Composable
 private fun FishListView(
     fish: List<com.nexusaquarium.data.model.Fish>,
-    onDelete: (Int) -> Unit
+    onDelete: (Int) -> Unit,
+    onFishClick: (com.nexusaquarium.data.model.Fish) -> Unit
 ) {
     // Header card with stats shown above the grid so it doesn't require GridItemSpan
     Column(modifier = Modifier.fillMaxSize()) {
@@ -235,6 +238,7 @@ private fun FishListView(
                 FishCard(
                     fish = fishItem,
                     onDelete = onDelete,
+                    onCardClick = onFishClick,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
